@@ -3,34 +3,37 @@ version: '3.8'
 services:
   mosquitto:
     image: eclipse-mosquitto
+    container_name: mosquitto
     ports:
       - "1883:1883"
     volumes:
       - ./mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf
 
   zookeeper:
-    image: arm64v8/zookeeper
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
     ports:
       - "2181:2181"
-    environment:
-      ZOO_MY_ID: 1
-      ALLOW_ANONYMOUS_LOGIN: "yes"
 
   kafka:
-    image: obsidiandynamics/kafka
+    image: bitnami/kafka:latest
+    container_name: kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
     ports:
       - "9092:9092"
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_BROKER_ID: 1
-      KAFKA_LOG_DIRS: /tmp/kafka-logs
     depends_on:
       - zookeeper
 
   flask_agent:
     build: ./flask_agent
+    container_name: flask_agent
     ports:
       - "5000:5000"
     depends_on:
