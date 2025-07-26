@@ -16,3 +16,8 @@ services:
       - mosquitto
     volumes:
       - ./flask_agent:/app
+  sensor_publisher:
+    build: ./sensor
+    privileged: true        # Necesario para acceder a GPIO
+    depends_on:
+      - mosquitto
