@@ -21,3 +21,5 @@ services:
     privileged: true        # Necesario para acceder a GPIO
     depends_on:
       - mosquitto
+    volumes:
+      - ./sensor:/app
